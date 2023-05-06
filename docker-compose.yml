@@ -1,0 +1,11 @@
+version: "3"
+services:
+  escranking:
+    container_name: escranking
+    restart: always
+    build: .
+    volumes:
+      - .:/usr/app/
+    ports: ['8000:8000']
+    env_file:
+      - .env
