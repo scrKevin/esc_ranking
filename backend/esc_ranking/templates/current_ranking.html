@@ -1,0 +1,227 @@
+
+{% load static %}
+
+{% csrf_token %}
+<!-- {% for rank in ranking %}
+    <div>
+        {{rank.rank}} <img src="{% static '/flags/' %}{{rank.country}}.png" alt="{{ rank.country }}">
+        <span>{{ rank.artist }} - {{ rank.title }}</span>
+    </div>
+{% endfor %} -->
+<div class="title">Ranking van {{playerName}}</div>
+<div class="content">
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<!-- add font awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+{% block javascript %}
+<script>
+    var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            // if not safe, set csrftoken
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    // on page ready:
+    $(document).ready(function () {
+        console.log("ready!");
+        getCurrentRanking();
+    });
+    // jQuery script for making ajax call to the backend
+    function getCurrentRanking() {
+        // make GET ajax call
+        $.ajax({
+            type: 'GET',
+            url: "/esc/p/{{ playerName }}",
+            success: function (response) {
+                // on successfull
+                console.log(response);
+                updateLayout(response);
+            }, 
+            error: function (response) {
+                // alert the error if any error occured
+                console.log(response);
+            }
+        })
+    }
+    // jQuery script for updating the layout with the response from the backend
+    function updateLayout(json) {
+        // clear the content div
+        $(".content").empty();
+        // loop through the json response
+        $.each(json, function (index, value) {
+            //create an up and down button in each of the divs
+            var up = $("<button></button>");
+            var down = $("<button></button>");
+            // set the text of the up button to font awesome arrow up icon
+            up.html('<i class="fas fa-arrow-up"></i>');
+            // add an onclick event to the up button
+            up.click(function () {
+                // make POST ajax call
+                $.ajax({
+                    type: 'POST',
+                    url: "/esc/c/{{ playerName }}",
+                    data: {
+                        'id': value.id,
+                        'direction': 'up'
+                    },
+                    success: function (response) {
+                        // on successfull
+                        console.log(response);
+                        updateLayout(response);
+                    },
+                    error: function (response) {
+                        // alert the error if any error occured
+                        console.log(response);
+                    }
+                })
+            });
+            // set the text of the down button to font awesome arrow down icon
+            down.html('<i class="fas fa-arrow-down"></i>');
+            // add an onclick event to the down button
+            down.click(function () {
+                // make POST ajax call
+                $.ajax({
+                    type: 'POST',
+                    url: "/esc/c/{{ playerName }}",
+                    data: {
+                        'id': value.id,
+                        'direction': 'down'
+                    },
+                    success: function (response) {
+                        // on successfull
+                        console.log(response);
+                        updateLayout(response);
+                    },
+                    error: function (response) {
+                        // alert the error if any error occured
+                        console.log(response);
+                    }
+                })
+            });
+            // set the id of the up button
+            up.attr("id", "up");
+            // set the id of the down button
+            down.attr("id", "down");
+            // create a div element
+            var div = $("<div></div>");
+            // create a span element
+            var span = $("<span></span>");
+            // create a span with the rank
+            var rank = $("<span class='rankText'></span>");
+            // set the text of the rank span
+            rank.text(value.rank + 1);
+            // create an img element
+            var img = $("<img>");
+            // set the src attribute of the img element
+            img.attr("src", "{% static '/flags/' %}" + value.country + ".png");
+            // set the alt attribute of the img element
+            img.attr("alt", value.country);
+            // set the text of the span element
+            span.html("<span class='countryNameText'>" + value.countryName + "</span>: " + value.artist + " - " + value.title);
+            // append the up button to the div element
+            div.append(up);
+            // append the down button to the div element
+            div.append(down);
+            // append the rank span to the div element
+            div.append(rank)
+            // append the img element to the div element
+            div.append(img);;
+            // append the span element to the div element
+            div.append(span);
+            // append the div element to the content div
+            $(".content").append(div);
+        });
+    }
+
+</script>
+{% endblock javascript %}
+
+<!-- add css block -->
+{% block css %}
+
+<style>
+
+    html {
+        background-color: rgb(31, 31, 31);
+        color: white;
+        font-family: sans-serif;
+    }
+
+    .title {
+        font-size: 2rem;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .content {
+        display: block;
+        /* align-items: center; */
+    }
+
+    .content>div {
+        display: block;
+        margin-bottom: 1rem;
+        margin-top: 1rem;
+        border-bottom: 1px solid red;
+    }
+
+    .content>div>span {
+        margin-left: 1rem;
+        margin-right: 1rem;
+        font-size: 1.2rem;
+        display: inline-block;
+        /* allow multiline */
+        white-space: pre-wrap;
+    }
+
+    #up, #down {
+        display: inline-block;
+        margin-right: 1rem;
+        margin-left: 3rem;
+        width: 50px;
+        height: 50px;
+        font-size: 2rem;
+        vertical-align: middle;
+    }
+
+    img {
+        width: 100px;
+        height: 67px;
+        /* do not strech image */
+        object-fit: contain;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .rankText {
+        font-size: 2rem !important;
+        margin-right: 1rem;
+        margin-left: 1rem;
+        font-weight: bold;
+    }
+
+    .countryNameText {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+
+</style>
+
+{% endblock css %}

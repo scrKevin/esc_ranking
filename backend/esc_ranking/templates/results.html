@@ -1,0 +1,168 @@
+
+{% load static %}
+
+<!-- {% csrf_token %} -->
+
+<div class="title">Resultaten</div>
+
+<button onclick="next(-1)">Previous</button>
+<button onclick="next(1)">Next</button>
+
+
+<div class="content">
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+{% block javascript %}
+<script>
+    result = null;
+    round = 0;
+    // on page ready:
+    $(document).ready(function () {
+        console.log("ready!");
+        getResult();
+    });
+    // jQuery script for making ajax call to the backend to fetch results
+    function getResult() {
+        // make GET ajax call
+        $.ajax({
+            type: 'GET',
+            url: "/esc/result",
+            success: function (response) {
+                // on successfull
+                console.log(response);
+                result = response;
+                updateLayout(round);
+            }, 
+            error: function (response) {
+                // alert the error if any error occured
+                console.log(response);
+            }
+        })
+    }
+
+    function next(direction) {
+        if (direction == 1) {
+            if (round < result.length - 1) {
+                round++;
+            }
+        } else {
+            if (round > 0) {
+                round--;
+            }
+        }
+        updateLayout(round);
+    }
+
+    function updateLayout(round) {
+        var html = "";
+        var roundData = result[round];
+
+        var rank = roundData['rank'] + 1
+        var country = roundData['country']
+        var artist = roundData['artist']
+        var title = roundData['title']
+        
+        
+        html += "<span class='rank'>" + rank + "</span><div class='country'><img src='{% static '/flags/' %}" + country + ".png' alt='" + country + "'><span>" + artist + " - " + title + "</span></div>";
+        // add table with rank, playername, aggregateScore, and roundScore. Make a row for each playerResult in roundData
+        html += "<table class='table table-striped'><thead><tr><th scope='col'>Rang</th><th scope='col'>Speler</th><th scope='col'>Totaal</th><th class='roundTd' scope='col'>Punten deze Ronde</th></tr></thead><tbody>";
+        for (var i = 0; i < roundData['playerResults'].length; i++) {
+            var playerResult = roundData['playerResults'][i];
+            var playerName = playerResult['playerName'];
+            var aggregateScore = playerResult['aggregateScore'];
+            var roundScore = playerResult['roundScore'];
+            var guessedRank = playerResult['guessedRank'];
+            html += "<tr><th scope='row'>" + (i + 1) + "</th><td>" + playerName + "</td><td>" + aggregateScore + "</td><td class='roundTd'>+" + roundScore + " (" + (guessedRank + 1) + ")</td></tr>";
+        }
+        
+        $(".content").html(html);
+    }
+
+</script>
+{% endblock javascript %}
+
+<!-- css block -->
+{% block css %}
+
+<style>
+
+    html {
+        background-color: rgb(31, 31, 31);
+        color: white;
+        font-family: sans-serif;
+    }
+
+    .title {
+        font-size: 30px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .content {
+        margin-top: 20px;
+    }
+
+    .content .rank {
+        display: inline-block;
+        font-size: 30px;
+        font-weight: bold;
+    }
+
+    .content > div {
+        display: inline-block;
+    }
+
+    .country {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .country img {
+        width: 100px;
+        height: 67px;
+        /* do not strech image */
+        object-fit: contain;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 20px;
+        margin-left: 20px;
+    }
+
+    .country span {
+        font-size: 30px;
+        font-weight: bold;
+    }
+
+    table {
+        margin-top: 20px;
+        width: 75%;
+    }
+
+    td, th {
+        border-bottom: 3px solid red;
+    }
+
+    table th {
+        font-size: 30px;
+        font-weight: bold;
+        text-align: left;
+    }
+
+    table td {
+        font-size: 20px;
+    }
+
+    .roundTd {
+        color: rgb(131, 131, 131);
+    }
+
+
+</style>
+    
+{% endblock css %}
