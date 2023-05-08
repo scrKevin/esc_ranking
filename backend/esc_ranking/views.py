@@ -114,6 +114,9 @@ def results(request):
 
     roundNr = 0
     resultJson = []
+    ## keep a dict for each player to store their previous ranking:
+    previousRound = None
+
     ## for each player, compare their ranking to the admin ranking:
     for rank in adminRanks:
         round = {}
@@ -131,6 +134,7 @@ def results(request):
                         roundScore = len(adminRanks) - abs(rank['rank'] - playerRank['rank'])
                         print(f'rank of {rank["country"]} is {rank["rank"]}, {player.name} guessed {playerRank["country"]} at {playerRank["rank"]}. Score: {roundScore}')
                         playerResult = {}
+                        playerResult['previousRank'] = getPlayerRank(previousRound, player.name)
                         playerResult['playerName'] = player.name
                         playerResult['guessedRank'] = playerRank['rank']
                         playerResult['roundScore'] = roundScore
@@ -140,9 +144,23 @@ def results(request):
         roundNr += 1
         ## sort the playerResults by aggregateScore:
         round['playerResults'].sort(key=lambda x: x['aggregateScore'], reverse=True)
+        ## add currentRank to each playerResult:
+        for playerResult in round['playerResults']:
+            playerResult['currentRank'] = getPlayerRank(round, playerResult['playerName'])
+        previousRound = round
         resultJson.append(round)
     print(resultJson)
 
 
     return JsonResponse(resultJson, safe=False)
+
+def getPlayerRank(round, playerName):
+    rank = 1
+    if round == None:
+        return -1
+    for playerResult in round['playerResults']:
+        if playerResult['playerName'] == playerName:
+            return rank
+        rank += 1
+    return 0
     

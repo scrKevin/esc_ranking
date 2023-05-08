@@ -26,8 +26,8 @@ SECRET_KEY = 'django-insecure-w-jzx=d!1%@_4szq)0jm!2uquhxg0en_@*p4v_8db&5755yz34
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['esc.bitwiseworkshop.nl']
-CSRF_TRUSTED_ORIGINS=['https://esc.bitwiseworkshop.nl']
+ALLOWED_HOSTS = ['esc.bitwiseworkshop.nl', 'localhost',]
+CSRF_TRUSTED_ORIGINS=['https://esc.bitwiseworkshop.nl', 'http://localhost',]
 
 
 # Application definition

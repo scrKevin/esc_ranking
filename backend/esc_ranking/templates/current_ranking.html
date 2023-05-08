@@ -132,7 +132,7 @@
             // set the alt attribute of the img element
             img.attr("alt", value.country);
             // set the text of the span element
-            span.html("<span class='countryNameText'>" + value.countryName + "</span>: " + value.artist + " - " + value.title);
+            span.html("<span><span class='countryNameText'>" + value.countryName + " </span><div class='artistText'>" + value.artist + " - " + value.title + "</div></span>");
             // append the up button to the div element
             div.append(up);
             // append the down button to the div element
@@ -198,6 +198,8 @@
         height: 50px;
         font-size: 2rem;
         vertical-align: middle;
+        position: relative;
+        top: -10px;
     }
 
     img {
@@ -207,6 +209,8 @@
         object-fit: contain;
         display: inline-block;
         vertical-align: middle;
+        position: relative;
+        top: -12px;
     }
 
     .rankText {
@@ -219,6 +223,11 @@
     .countryNameText {
         font-size: 1.5rem;
         font-weight: bold;
+    }
+
+    .artistText {
+        display: block;
+        white-space: pre-wrap;
     }
 
 

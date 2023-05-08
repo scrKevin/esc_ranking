@@ -17,6 +17,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 {% block javascript %}
 <script>
     result = null;
@@ -65,10 +67,11 @@
         var rank = roundData['rank'] + 1
         var country = roundData['country']
         var artist = roundData['artist']
+        var countryName = roundData['countryName']
         var title = roundData['title']
         
         
-        html += "<span class='rank'>" + rank + "</span><div class='country'><img src='{% static '/flags/' %}" + country + ".png' alt='" + country + "'><span>" + artist + " - " + title + "</span></div>";
+        html += "<span class='rank'>" + rank + "</span><div class='country'><img src='{% static '/flags/' %}" + country + ".png' alt='" + country + "'><span><span style='font-weight: bold;'>" + countryName + ":</span> " + artist + " - " + title + "</span></div>";
         // add table with rank, playername, aggregateScore, and roundScore. Make a row for each playerResult in roundData
         html += "<table class='table table-striped'><thead><tr><th scope='col'>Rang</th><th scope='col'>Speler</th><th scope='col'>Totaal</th><th class='roundTd' scope='col'>Punten deze Ronde</th></tr></thead><tbody>";
         for (var i = 0; i < roundData['playerResults'].length; i++) {
@@ -77,7 +80,16 @@
             var aggregateScore = playerResult['aggregateScore'];
             var roundScore = playerResult['roundScore'];
             var guessedRank = playerResult['guessedRank'];
-            html += "<tr><th scope='row'>" + (i + 1) + "</th><td>" + playerName + "</td><td>" + aggregateScore + "</td><td class='roundTd'>+" + roundScore + " (" + (guessedRank + 1) + ")</td></tr>";
+            var changeInRank = ""
+            if (playerResult['previousRank'] > 0) {
+                var intChangeInRank = playerResult['previousRank'] - playerResult['currentRank']
+                if (intChangeInRank > 0) {
+                    changeInRank = " <i class='fas fa-caret-up' style='color: green;'></i> " + intChangeInRank
+                } else if (intChangeInRank < 0) {
+                    changeInRank = " <i class='fas fa-caret-down' style='color: red;'></i> " + Math.abs(intChangeInRank)
+                }
+            }
+            html += "<tr><th scope='row'>" + (i + 1) + "</th><td>" + changeInRank + "  " + playerName + "</td><td>" + aggregateScore + "</td><td class='roundTd'>+" + roundScore + " (" + (guessedRank + 1) + ")</td></tr>";
         }
         
         $(".content").html(html);
