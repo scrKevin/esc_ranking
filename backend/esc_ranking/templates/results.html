@@ -70,6 +70,14 @@
         var countryName = roundData['countryName']
         var title = roundData['title']
         
+        // get highest roundScore in roundData['playerResults'].roundScore:
+        var highestRoundScore = 0;
+        for (var i = 0; i < roundData['playerResults'].length; i++) {
+            var playerResult = roundData['playerResults'][i];
+            if (playerResult['roundScore'] > highestRoundScore) {
+                highestRoundScore = playerResult['roundScore'];
+            }
+        }
         
         html += "<span class='rank'>" + rank + "</span><div class='country'><img src='{% static '/flags/' %}" + country + ".png' alt='" + country + "'><span><span style='font-weight: bold;'>" + countryName + ":</span> " + artist + " - " + title + "</span></div>";
         // add table with rank, playername, aggregateScore, and roundScore. Make a row for each playerResult in roundData
@@ -79,6 +87,10 @@
             var playerName = playerResult['playerName'];
             var aggregateScore = playerResult['aggregateScore'];
             var roundScore = playerResult['roundScore'];
+            var star = "";
+            if (roundScore == highestRoundScore) {
+                star = " <i class='fa-solid fa-star' style='color: gold;'></i>"
+            }
             var guessedRank = playerResult['guessedRank'];
             var changeInRank = ""
             if (playerResult['previousRank'] > 0) {
@@ -89,7 +101,7 @@
                     changeInRank = " <i class='fas fa-caret-down' style='color: red;'></i> " + Math.abs(intChangeInRank)
                 }
             }
-            html += "<tr><th scope='row'>" + (i + 1) + "</th><td>" + changeInRank + "  " + playerName + "</td><td>" + aggregateScore + "</td><td class='roundTd'>+" + roundScore + " (" + (guessedRank + 1) + ")</td></tr>";
+            html += "<tr><th scope='row'>" + (i + 1) + "</th><td>" + changeInRank + "  " + playerName + "</td><td>" + aggregateScore + "</td><td class='roundTd'>+" + roundScore + star + " (" + (guessedRank + 1) + ")</td></tr>";
         }
         
         $(".content").html(html);
