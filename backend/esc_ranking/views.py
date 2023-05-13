@@ -132,6 +132,10 @@ def results(request):
                 for playerRank in player.ranking:
                     if playerRank['country'] == rank['country']:
                         roundScore = len(adminRanks) - abs(rank['rank'] - playerRank['rank'])
+                        if roundNr == len(adminRanks) - 1 and roundScore == len(adminRanks):
+                            roundScore *=2
+                            print(f"{player.name} guessed winner correctly, double points!")
+
                         print(f'rank of {rank["country"]} is {rank["rank"]}, {player.name} guessed {playerRank["country"]} at {playerRank["rank"]}. Score: {roundScore}')
                         playerResult = {}
                         playerResult['previousRank'] = getPlayerRank(previousRound, player.name)
